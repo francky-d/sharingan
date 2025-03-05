@@ -1,0 +1,29 @@
+services:
+  frontend: 
+    build: 
+      context: ./frontend
+      dockerfile: Dockerfile.dev
+    volumes:
+      - ./frontend/:/app/
+      - /app/node_modules
+    networks:
+      - sharingan
+    ports:
+      - "${FRONTEND_PORT}:3000"
+
+  backend: 
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.dev
+    networks:
+      - sharingan
+    volumes:
+      - ./backend/:/app/
+    ports:
+      - "${BACKEND_PORT}:8000"
+
+
+networks:
+  sharingan:
+    driver: bridge 
+  
