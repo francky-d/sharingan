@@ -1,18 +1,19 @@
 package main
 
 import (
-	"log"
 	"net/http"
+
+	"github.com/gin-gonic/gin"
 )
 
 func main() {
-	router := http.NewServeMux()
+	router := gin.Default()
 
-	router.HandleFunc("GET /", func(resp http.ResponseWriter, req *http.Request) {
-		resp.Header().Set("Content-Type", "text/html")
-
-		resp.Write([]byte("<h1>Hello world</h1>"))
+	router.GET("/health", func(c *gin.Context) {
+		c.JSON(http.StatusOK, gin.H{
+			"message": "Hello world",
+		})
 	})
 
-	log.Fatal(http.ListenAndServe(":8000", router))
+	router.Run(":8000")
 }
