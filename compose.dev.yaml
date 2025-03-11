@@ -1,0 +1,64 @@
+services:
+  frontend: 
+    build: 
+      context: ./frontend
+      dockerfile: Dockerfile.dev
+    container_name: frontend-container
+    volumes:
+      - ./frontend/:/app/
+      - /app/node_modules
+    networks:
+      - sharingan
+    ports:
+      - "${FRONTEND_PORT}:3000"
+
+  backend: 
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.dev
+    container_name: backend-container
+    networks:
+      - sharingan
+    volumes:
+      - ./backend/:/app/
+    ports:
+      - "${BACKEND_PORT}:8000"
+      
+  postgres:
+    image: "postgres:17"
+    container_name: postgres-container
+    ports:
+      - "${DB_PORT}:5432"
+    environment:
+      POSTGRES_DB: "${DB_DATABASE}"
+      POSTGRES_USER: "${DB_USERNAME}"
+      POSTGRES_PASSWORD: "${DB_PASSWORD}"
+    volumes:
+        - "sharingan-postgres:/var/lib/postgresql/data"
+    networks:
+        - sharingan
+    healthcheck:
+        test:
+            - CMD-SHELL
+            - "pg_isready -U ${DB_USERNAME}"
+        retries: 3
+        timeout: 5s
+
+  pgadmin:
+      image: "dpage/pgadmin4:latest"
+      container_name: pgadmin-container
+      ports:
+          - "${PG_ADMIN_PORT}:80"
+      networks:
+          - sharingan
+      environment:
+          PGADMIN_DEFAULT_EMAIL: "${PGADMIN_DEFAULT_EMAIL}"
+          PGADMIN_DEFAULT_PASSWORD: "${PGADMIN_DEFAULT_PASSWORD}"
+
+networks:
+  sharingan:
+    driver: bridge
+
+volumes:
+  sharingan-postgres:
+
