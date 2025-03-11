@@ -1,0 +1,58 @@
+<diagram program="umletino" version="15.1"><zoom_level>10</zoom_level><help_text>Space for diagram notes</help_text><element><id>UMLClass</id><coordinates><x>570</x><y>152</y><w>210</w><h>190</h></coordinates><panel_attributes>ApplicationGroup
+--
++ id : string
++ name: string
++ user_id : string
++ created_at: datetime
++ updated_at: datetime
++ deleted_at: datetime</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>570</x><y>522</y><w>210</w><h>190</h></coordinates><panel_attributes>Application
+--
++ id: string
++ user_id : string
++ group_id : string
++ url: string
++ url_to_watch: string
++ http_success_code: int
++ created_at: datetime
++ updated_at: datetime
++ deleted_at: datetime</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>1030</x><y>412</y><w>210</w><h>190</h></coordinates><panel_attributes>Incident
+--
++ id: string
++ user_id: string
++ application_id: string
++ title: sting
++ description: string 
++ created_at: datetime
++ updated_at: datetime
++ deleted_at: datetime
+</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>1030</x><y>632</y><w>210</w><h>190</h></coordinates><panel_attributes>Operation
+--
++ id: string
++ user_id: string
++ application_id: string
++ title: sting
++ description: string 
++ created_at: datetime
++ updated_at: datetime
++ deleted_at: datetime
+</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>70</x><y>522</y><w>210</w><h>130</h></coordinates><panel_attributes>Subscription
+-
++ id: string
++ user_id: string
++ application_id: string
++ created_at: datetime
++ updated_at: datetime
++ deleted_at: datetime
+</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>630</x><y>332</y><w>90</w><h>210</h></coordinates><panel_attributes>lt=-
+m1=1..1
+m2=1...n
+contenir v</panel_attributes><additional_attributes>10;10;10;190</additional_attributes></element><element><id>Relation</id><coordinates><x>770</x><y>512</y><w>280</w><h>50</h></coordinates><panel_attributes>lt=-
+m1=1..n
+m2=1..1
+avoir &gt;</panel_attributes><additional_attributes>260;20;10;20</additional_attributes></element><element><id>Relation</id><coordinates><x>770</x><y>642</y><w>280</w><h>50</h></coordinates><panel_attributes>lt=-
+m1=1..n
+m2=0..*
+avoir &gt;</panel_attributes><additional_attributes>260;20;10;20</additional_attributes></element><element><id>Relation</id><coordinates><x>270</x><y>602</y><w>320</w><h>50</h></coordinates><panel_attributes>lt=-
+m1=1..n
+m2=1..1
+&lt; avoir </panel_attributes><additional_attributes>10;20;300;20</additional_attributes></element></diagram>
