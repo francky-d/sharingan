@@ -1,23 +1,17 @@
 package main
 
 import (
-	"log"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"gitlab.jems-group.com/fdjacoto/sharingan/backend/internal/models"
-	"gorm.io/driver/postgres"
-	"gorm.io/gorm"
+	"gitlab.jems-group.com/fdjacoto/sharingan/backend/internal/migrations"
 )
 
-func main() {
-	dsn := "host=postgres user=sharingan password=sharingan dbname=sharingan port=5432 sslmode=disable TimeZone=Europe/Paris"
-	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
+func init() {
+	migrations.Migrate()
+}
 
-	if err != nil {
-		log.Fatalf("error opening database: %v", err)
-	}
-	db.AutoMigrate(&models.Application{})
+func main() {
 
 	router := gin.Default()
 
