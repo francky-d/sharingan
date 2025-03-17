@@ -5,6 +5,7 @@ import (
 	"reflect"
 
 	"gitlab.jems-group.com/fdjacoto/sharingan/backend/internal/database"
+	"gitlab.jems-group.com/fdjacoto/sharingan/backend/internal/models"
 )
 
 func Migrate() {
@@ -24,8 +25,14 @@ func Migrate() {
 
 		fmt.Printf("Migrating table '%s' associated to model '%v' \n", table, modelName)
 		dbConnection.Db().AutoMigrate(model)
-
 	}
+
+	//TODO: REMOVE this: it shall be dynamic using keycloack
+	dbConnection.Db().Create(&models.User{
+		Name:     "Franck",
+		Email:    "djacotofranck@gmail.com",
+		Password: "password",
+	})
 
 	fmt.Println("\nMigrations terminated")
 	fmt.Print("\n")
