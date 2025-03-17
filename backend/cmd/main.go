@@ -4,9 +4,8 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"gitlab.jems-group.com/fdjacoto/sharingan/backend/internal/database"
+	"gitlab.jems-group.com/fdjacoto/sharingan/backend/internal/controllers"
 	"gitlab.jems-group.com/fdjacoto/sharingan/backend/internal/migrations"
-	"gitlab.jems-group.com/fdjacoto/sharingan/backend/internal/models"
 )
 
 func init() {
@@ -24,47 +23,18 @@ func main() {
 	})
 
 	apiV1 := router.Group("/api/v1")
+	applictionGrpController := controllers.NewApplicationGroupController()
 	appGrps := apiV1.Group("/applications-groups")
 
-	appGrps.GET("/", func(c *gin.Context) {
-		var applicationsGroups []models.ApplicationGroup
+	appGrps.GET("/", applictionGrpController.Index)
 
-		database.DbConnection().Db().Find(&applicationsGroups)
+	appGrps.POST("/", applictionGrpController.Store)
 
-		c.JSON(http.StatusOK, gin.H{
-			"success": true,
-			"data": gin.H{
-				"application_groups": applicationsGroups,
-			},
-		})
-	})
+	appGrps.GET("/:id", applictionGrpController.Show)
 
-	appGrps.POST("/", func(c *gin.Context) {
-		var group models.ApplicationGroup
+	appGrps.PUT(":id/update", applictionGrpController.Update)
 
-		if err := c.ShouldBindJSON(&group); err != nil {
-			c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
-				"success": false,
-				"error":   err.Error(),
-			})
-			return
-		}
-
-		group.UserID = uint(1)
-
-		result := database.DbConnection().Db().Create(&group)
-		if result.Error != nil {
-			c.AbortWithStatusJSON(http.StatusInternalServerError, result.Error.Error())
-		}
-
-		c.JSON(http.StatusCreated, gin.H{
-			"success": true,
-			"data": gin.H{
-				"id": group.ID,
-			}},
-		)
-
-	})
+	appGrps.DELETE(":id/delete", applictionGrpController.Delete)
 
 	router.Run(":8000")
 }
