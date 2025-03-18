@@ -4,6 +4,9 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	swaggerfiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
+	"gitlab.jems-group.com/fdjacoto/sharingan/backend/api/docs"
 	"gitlab.jems-group.com/fdjacoto/sharingan/backend/internal/controllers"
 )
 
@@ -25,6 +28,12 @@ func constructRoutes(router *gin.Engine) {
 
 func Run() {
 	router := gin.Default()
+	docs.SwaggerInfo.BasePath = "/api/v1"
+
+	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
+
+	docs.SwaggerInfo.BasePath = "/api/v1"
+
 	constructRoutes(router)
 	router.Run(":8000")
 }

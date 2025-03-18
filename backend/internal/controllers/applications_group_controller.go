@@ -10,6 +10,9 @@ import (
 	"gorm.io/gorm"
 )
 
+// gin-swagger middleware
+// swagger embed files
+
 type ApplicationGroupController struct {
 }
 
@@ -23,6 +26,17 @@ func NewApplicationGroupController() *ApplicationGroupController {
 	return controllerInstance
 }
 
+//	@BasePath	/api/v1
+
+// PingExample godoc
+//	@Summary	ping example
+//	@Schemes
+//	@Description	do ping
+//	@Tags			example
+//	@Accept			json
+//	@Produce		json
+//	@Success		200	{string}	Helloworld
+//	@Router			/example/helloworld [get]
 func (controller *ApplicationGroupController) Index(c *gin.Context) {
 	var applicationsGroups []models.ApplicationGroup
 
