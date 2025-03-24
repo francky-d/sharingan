@@ -56,11 +56,11 @@ generate_env_example() {
 # Usage example:
 # generate_env_example /path/to/.env /path/to/.env.example
 
-# Function to generate .env.example in the backend folder
-generate_backend_env_example() {
-    local backend_folder="./backend"
-    local env_file="$backend_folder/.env"
-    local env_example_file="$backend_folder/.env.example"
+# Function to generate .env.example in the api folder
+generate_api_env_example() {
+    local api_folder="./api"
+    local env_file="$api_folder/.env"
+    local env_example_file="$api_folder/.env.example"
 
     generate_env_example "$env_file" "$env_example_file"
 }
@@ -86,7 +86,7 @@ generate_root_dir_env_example() {
 }
 generate_all_env_examples() {
     generate_root_dir_env_example
-    generate_backend_env_example
+    generate_api_env_example
     generate_frontend_env_example
     generate_devops_env_example
 }
