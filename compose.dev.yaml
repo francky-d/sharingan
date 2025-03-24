@@ -12,27 +12,27 @@ services:
     ports:
       - "${FRONTEND_PORT}:3000"
 
-  backend: 
+  api: 
     build:
-      context: ./backend
+      context: ./api
       dockerfile: Dockerfile.dev
-    container_name: backend-container
+    container_name: api-container
     networks:
       - sharingan
     volumes:
-      - ./backend/:/app/
+      - ./api/:/app/
     ports:
       - "${BACKEND_PORT}:8000"
       
-  postgres:
-    image: "postgres:17"
-    container_name: postgres-container
+  api-db:
+    image: postgres:17
+    container_name: api-db-contaier
     ports:
-      - "${DB_PORT}:5432"
+      - "${DB_PORT_API}:5432"
     environment:
-      POSTGRES_DB: "${DB_DATABASE}"
-      POSTGRES_USER: "${DB_USERNAME}"
-      POSTGRES_PASSWORD: "${DB_PASSWORD}"
+      POSTGRES_DB: "${DATABASE_NAME_API}"
+      POSTGRES_USER: "${DB_USERNAME_API}"
+      POSTGRES_PASSWORD: "${DB_PASSWORD_API}"
     volumes:
         - "sharingan-postgres:/var/lib/postgresql/data"
     networks:
@@ -40,7 +40,7 @@ services:
     healthcheck:
         test:
             - CMD-SHELL
-            - "pg_isready -U ${DB_USERNAME}"
+            - "pg_isready -U ${DB_USERNAME_API}"
         retries: 3
         timeout: 5s
 
@@ -54,6 +54,39 @@ services:
       environment:
           PGADMIN_DEFAULT_EMAIL: "${PGADMIN_DEFAULT_EMAIL}"
           PGADMIN_DEFAULT_PASSWORD: "${PGADMIN_DEFAULT_PASSWORD}"
+  
+  keycloak-db:
+    image: postgres:17
+    container_name: keycloak-db-container
+    environment:
+      POSTGRES_USER: "${DB_USERNAME_KEYCLOACK}"
+      POSTGRES_PASSWORD: "${DB_PASSWORD_KEYCLOACK}"
+      POSTGRES_DB: "${DATABASE_NAME_KEYCLOACK}"
+    networks:
+      - sharingan
+    ports:
+      - "${KEYCLOAKCK_DB_PORT}:5432"
+    volumes:
+      - keycloak-data:/var/lib/postgresql/data
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:24.0
+    container_name: keycloak-container
+    environment:
+      KC_DB: postgres
+      KC_DB_URL: "jdbc:postgresql://keycloak-db:5432/${DATABASE_NAME_KEYCLOACK}"
+      KC_DB_USERNAME: "${DB_USERNAME_KEYCLOACK}"
+      KC_DB_PASSWORD: "${DB_PASSWORD_KEYCLOACK}"
+      KC_HOSTNAME: localhost
+      KEYCLOAK_ADMIN: "${KEYCLOAK_ADMIN}"
+      KEYCLOAK_ADMIN_PASSWORD: "${KEYCLOAK_ADMIN_PASSWORD}"
+    ports:
+      - "${KEYCLOAKC_PORT}:8080"
+    networks:
+        - sharingan
+    depends_on:
+      - keycloak-db
+    command: ["start-dev"]
 
 networks:
   sharingan:
@@ -61,4 +94,4 @@ networks:
 
 volumes:
   sharingan-postgres:
-
+  keycloak-data:
