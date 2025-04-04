@@ -5,9 +5,9 @@ import "github.com/gin-gonic/gin"
 func applicationGroupRoutes(apiV1 *gin.RouterGroup) {
 	appGrps := apiV1.Group("/applications-groups")
 
-	appGrps.GET("/", applictionGrpController.Index)
-	appGrps.POST("/", applictionGrpController.Store)
-	appGrps.GET("/:id", applictionGrpController.Show)
-	appGrps.PUT(":id/update", applictionGrpController.Update)
-	appGrps.DELETE(":id/delete", applictionGrpController.Delete)
+	appGrps.GET("/", applicationGrpController.Index)
+	appGrps.POST("/", applicationGrpController.Store)
+	appGrps.GET("/:id", applicationGrpController.Show)
+	appGrps.PUT(":id/update", applicationGrpController.Update)
+	appGrps.DELETE(":id/delete", applicationGrpController.Delete)
 }

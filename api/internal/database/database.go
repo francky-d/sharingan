@@ -28,7 +28,7 @@ func DbConnection() *databaseConnection {
 
 func newDatabaseConnection() *databaseConnection {
 	//TODO get this value from en file
-	dsn := "host=postgres user=sharingan password=sharingan dbname=sharingan port=5432 sslmode=disable TimeZone=Europe/Paris"
+	dsn := "host=api-db user=sharingan password=sharingan dbname=sharingan port=5432 sslmode=disable TimeZone=Europe/Paris"
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 
 	if err != nil {
