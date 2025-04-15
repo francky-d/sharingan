@@ -3,8 +3,8 @@ package routes
 import (
 	"context"
 	"errors"
-	"fmt"
 	"github.com/Nerzal/gocloak/v13"
+	"github.com/gin-contrib/cors"
 	custom_errors "gitlab.jems-group.com/fdjacoto/sharingan/backend/internal/custom-errors"
 	"net/http"
 	"strings"
@@ -16,24 +16,6 @@ import (
 	"gitlab.jems-group.com/fdjacoto/sharingan/backend/api/docs"
 	"gitlab.jems-group.com/fdjacoto/sharingan/backend/internal/controllers"
 )
-
-func CorsMiddleware() gin.HandlerFunc {
-	return func(ctx *gin.Context) {
-		fmt.Println("CORS middleware called for:", ctx.Request.Method, ctx.Request.URL.Path)
-		ctx.Writer.Header().Set("Access-Control-Allow-Origin", "http://localhost:3000")
-		ctx.Writer.Header().Set("Access-Control-Allow-Credentials", "true")
-		ctx.Writer.Header().Set("Access-Control-Allow-Headers", "Content-Type, Content-Length, Accept-Encoding, Authorization")
-		ctx.Writer.Header().Set("Access-Control-Allow-Methods", "OPTIONS, GET, POST, PATCH, DELETE, PUT")
-
-		if ctx.Request.Method == http.MethodOptions {
-			fmt.Println("OPTIONS")
-			ctx.AbortWithStatus(http.StatusNoContent)
-			return
-		}
-
-		ctx.Next()
-	}
-}
 
 func authenticationMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
@@ -95,11 +77,7 @@ func authenticationMiddleware() gin.HandlerFunc {
 		}
 
 		c.Set("user", userInfo)
-
-		c.JSON(200, gin.H{
-			"success": "true",
-			"data":    userInfo,
-		})
+		c.Next()
 
 		return
 	}
@@ -146,7 +124,16 @@ func constructRoutes(router *gin.Engine) {
 
 func Run() {
 	router := gin.Default()
-	router.Use(CorsMiddleware())
+	// Apply CORS middleware first, before any other middleware
+	corsConfig := cors.Config{
+		AllowOrigins:     []string{"http://localhost:3000"},
+		AllowMethods:     []string{"GET", "POST", "PUT", "PATCH", "DELETE", "HEAD", "OPTIONS"},
+		AllowHeaders:     []string{"Origin", "Authorization", "Content-Type", "Content-Length", "Accept-Encoding"},
+		ExposeHeaders:    []string{"Content-Length"},
+		AllowCredentials: true,
+	}
+	router.Use(cors.New(corsConfig))
+
 	docs.SwaggerInfo.BasePath = "/api/v1"
 
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
