@@ -3,6 +3,7 @@ package routes
 import (
 	"context"
 	"errors"
+	"fmt"
 	"github.com/Nerzal/gocloak/v13"
 	custom_errors "gitlab.jems-group.com/fdjacoto/sharingan/backend/internal/custom-errors"
 	"net/http"
@@ -15,6 +16,24 @@ import (
 	"gitlab.jems-group.com/fdjacoto/sharingan/backend/api/docs"
 	"gitlab.jems-group.com/fdjacoto/sharingan/backend/internal/controllers"
 )
+
+func CorsMiddleware() gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		fmt.Println("CORS middleware called for:", ctx.Request.Method, ctx.Request.URL.Path)
+		ctx.Writer.Header().Set("Access-Control-Allow-Origin", "http://localhost:3000")
+		ctx.Writer.Header().Set("Access-Control-Allow-Credentials", "true")
+		ctx.Writer.Header().Set("Access-Control-Allow-Headers", "Content-Type, Content-Length, Accept-Encoding, Authorization")
+		ctx.Writer.Header().Set("Access-Control-Allow-Methods", "OPTIONS, GET, POST, PATCH, DELETE, PUT")
+
+		if ctx.Request.Method == http.MethodOptions {
+			fmt.Println("OPTIONS")
+			ctx.AbortWithStatus(http.StatusNoContent)
+			return
+		}
+
+		ctx.Next()
+	}
+}
 
 func authenticationMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
@@ -127,6 +146,7 @@ func constructRoutes(router *gin.Engine) {
 
 func Run() {
 	router := gin.Default()
+	router.Use(CorsMiddleware())
 	docs.SwaggerInfo.BasePath = "/api/v1"
 
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
