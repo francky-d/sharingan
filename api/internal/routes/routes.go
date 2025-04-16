@@ -5,7 +5,7 @@ import (
 	"errors"
 	"github.com/Nerzal/gocloak/v13"
 	"github.com/gin-contrib/cors"
-	custom_errors "gitlab.jems-group.com/fdjacoto/sharingan/backend/internal/custom-errors"
+	customErrors "gitlab.jems-group.com/fdjacoto/sharingan/backend/internal/custom-errors"
 	"net/http"
 	"strings"
 	"time"
@@ -20,7 +20,7 @@ import (
 func authenticationMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		accessToken, err := GetTokenFromRequest(c)
-		if errors.Is(err, custom_errors.TokenNotPresentErr) || errors.Is(err, custom_errors.MustBeBearerToken) {
+		if errors.Is(err, customErrors.TokenNotPresentErr) || errors.Is(err, customErrors.MustBeBearerToken) {
 			c.JSON(http.StatusBadRequest, gin.H{
 				"success": false,
 				"errors":  err.Error(),
@@ -47,7 +47,7 @@ func authenticationMiddleware() gin.HandlerFunc {
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{
 				"success": false,
-				"errors":  custom_errors.InternalServerErr.Error(),
+				"errors":  customErrors.InternalServerErr.Error(),
 			})
 			c.Abort()
 			return
@@ -57,7 +57,7 @@ func authenticationMiddleware() gin.HandlerFunc {
 		if !*result.Active {
 			c.JSON(http.StatusUnauthorized, gin.H{
 				"success": false,
-				"errors":  custom_errors.UnauthorizedErr.Error(),
+				"errors":  customErrors.UnauthorizedErr.Error(),
 			})
 
 			c.Abort()
@@ -86,13 +86,13 @@ func authenticationMiddleware() gin.HandlerFunc {
 func GetTokenFromRequest(c *gin.Context) (string, error) {
 	token := c.Request.Header.Get("Authorization")
 	if token == "" {
-		return "", custom_errors.TokenNotPresentErr
+		return "", customErrors.TokenNotPresentErr
 	}
 
 	accessToken, isBearerToken := checkIfItsBearerToken(token)
 
 	if !isBearerToken {
-		return "", custom_errors.MustBeBearerToken
+		return "", customErrors.MustBeBearerToken
 	}
 	return accessToken, nil
 
