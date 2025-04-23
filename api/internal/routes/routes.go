@@ -1,110 +1,15 @@
 package routes
 
 import (
-	"context"
-	"errors"
-	"github.com/Nerzal/gocloak/v13"
 	"github.com/gin-contrib/cors"
-	customErrors "gitlab.jems-group.com/fdjacoto/sharingan/backend/internal/custom-errors"
-	"net/http"
-	"strings"
-	"time"
-
 	"github.com/gin-gonic/gin"
 	swaggerfiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
 	"gitlab.jems-group.com/fdjacoto/sharingan/backend/api/docs"
 	"gitlab.jems-group.com/fdjacoto/sharingan/backend/internal/controllers"
+	"gitlab.jems-group.com/fdjacoto/sharingan/backend/internal/middlewares"
+	"net/http"
 )
-
-func authenticationMiddleware() gin.HandlerFunc {
-	return func(c *gin.Context) {
-		accessToken, err := GetTokenFromRequest(c)
-		if errors.Is(err, customErrors.TokenNotPresentErr) || errors.Is(err, customErrors.MustBeBearerToken) {
-			c.JSON(http.StatusBadRequest, gin.H{
-				"success": false,
-				"errors":  err.Error(),
-			})
-
-			c.Abort()
-			return
-		}
-
-		// TODO: get the config value from .env variables
-		keycloackConfig := KeycloackConfig{
-			Host:         "http://keycloak:8080",
-			Realm:        "sharingan",
-			ClientID:     "sharingan-api",
-			ClientSecret: "k2ceR5OUCgjKEmbp4tHiUNxvRPF7EI7q",
-		}
-		client := gocloak.NewClient(keycloackConfig.Host)
-
-		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-		defer cancel()
-
-		result, err := client.RetrospectToken(ctx, accessToken, keycloackConfig.ClientID, keycloackConfig.ClientSecret, keycloackConfig.Realm)
-
-		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{
-				"success": false,
-				"errors":  customErrors.InternalServerErr.Error(),
-			})
-			c.Abort()
-			return
-			//TODO:  logError
-		}
-
-		if !*result.Active {
-			c.JSON(http.StatusUnauthorized, gin.H{
-				"success": false,
-				"errors":  customErrors.UnauthorizedErr.Error(),
-			})
-
-			c.Abort()
-			return
-		}
-
-		userInfo, err := client.GetUserInfo(ctx, accessToken, keycloackConfig.Realm)
-
-		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{
-				"success": false,
-				"errors":  "An error occurred while retrieving user informations",
-			})
-			//TODO:  logError
-			c.Abort()
-			return
-		}
-
-		c.Set("user", userInfo)
-		c.Next()
-
-		return
-	}
-}
-
-func GetTokenFromRequest(c *gin.Context) (string, error) {
-	token := c.Request.Header.Get("Authorization")
-	if token == "" {
-		return "", customErrors.TokenNotPresentErr
-	}
-
-	accessToken, isBearerToken := checkIfItsBearerToken(token)
-
-	if !isBearerToken {
-		return "", customErrors.MustBeBearerToken
-	}
-	return accessToken, nil
-
-}
-
-func checkIfItsBearerToken(token string) (string, bool) {
-	parts := strings.Split(token, " ")
-	if len(parts) == 2 && parts[0] == "Bearer" {
-		return parts[1], true
-	}
-	return "", false
-}
 
 var applicationGrpController = controllers.NewApplicationGroupController()
 
@@ -117,7 +22,7 @@ func constructRoutes(router *gin.Engine) {
 	})
 
 	apiV1 := router.Group("/api/v1")
-	apiV1.Use(authenticationMiddleware())
+	apiV1.Use(middlewares.AuthenticationMiddleware())
 	applicationGroupRoutes(apiV1)
 
 }
