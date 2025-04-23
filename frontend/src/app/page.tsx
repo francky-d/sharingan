@@ -17,7 +17,7 @@ export default function Home() {
         console.log(session)
         try {
             // Use credentials: 'include' to ensure cookies are sent
-            const response = await fetch("http://localhost:8000/api/v1/applications-groups", {
+            const response = await fetch("http://localhost:8000/api/v1/applications-groups/", {
                 headers: {
                     "Authorization": `Bearer ${session?.accessToken || ""}`,
                 },
