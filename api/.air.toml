@@ -9,7 +9,9 @@ tmp_dir = "tmp"
   delay = 1000
   exclude_dir = ["assets", "tmp", "vendor", "testdata", "api/docs"]
   include_ext = ["go", "tpl", "tmpl", "html"]
-  
+  include_file = [".env"]
+
+
   # Add this to ensure docs are fully generated before starting the app
   full_bin = "./tmp/main"
 

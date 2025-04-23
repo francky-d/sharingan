@@ -121,6 +121,6 @@ func getKeycloakConfig() KeycloakConfig {
 		Host:         "http://keycloak:8080",
 		Realm:        "sharingan",
 		ClientID:     "sharingan-api",
-		ClientSecret: os.Getenv("KEYCLOACK_CLIENT_SECRET"),
+		ClientSecret: os.Getenv("KEYCLOAK_CLIENT_SECRET"),
 	}
 }
