@@ -8,6 +8,7 @@ import (
 	"gitlab.jems-group.com/fdjacoto/sharingan/backend/api/docs"
 	"gitlab.jems-group.com/fdjacoto/sharingan/backend/internal/controllers"
 	"gitlab.jems-group.com/fdjacoto/sharingan/backend/internal/middlewares"
+	"go.uber.org/zap"
 	"net/http"
 )
 
@@ -27,8 +28,8 @@ func constructRoutes(router *gin.Engine) {
 
 }
 
-func Run() {
-	router := gin.Default()
+func ConstructRouter(logger *zap.Logger) *gin.Engine {
+	router := gin.New()
 	// Apply CORS middleware first, before any other middleware
 	corsConfig := cors.Config{
 		AllowOrigins:     []string{"http://localhost:3000"},
@@ -37,14 +38,13 @@ func Run() {
 		ExposeHeaders:    []string{"Content-Length"},
 		AllowCredentials: true,
 	}
-	router.Use(cors.New(corsConfig))
-
+	router.Use(cors.New(corsConfig), middlewares.RequestsHistoryMiddleware(logger), middlewares.GinRecoverMiddleWare(logger))
 	docs.SwaggerInfo.BasePath = "/api/v1"
 
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
-
+	logger.Debug("YOYO")
 	docs.SwaggerInfo.BasePath = "/api/v1"
 
 	constructRoutes(router)
-	router.Run(":8000")
+	return router
 }
