@@ -24,7 +24,7 @@ func init() {
 func (app App) Start() {
 	logger, err := custom_logger.NewLoggerWithFile()
 	if err != nil {
-		log.Fatalf("error while creating error : %v", err)
+		log.Fatalf("error while creating logger : %v", err)
 	}
 	defer logger.Sync()
 
