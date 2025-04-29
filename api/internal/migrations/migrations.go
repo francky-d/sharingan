@@ -5,11 +5,11 @@ import (
 	"gitlab.jems-group.com/fdjacoto/sharingan/backend/internal/models"
 )
 
-type tableMappingToModel map[string]contract.ModelInterface
+type TableMappingToModel map[string]contract.ModelInterface
 
-func Migrations() tableMappingToModel {
+func Migrations() TableMappingToModel {
 
-	return tableMappingToModel{
+	return TableMappingToModel{
 		"users":              &models.User{},
 		"application_groups": &models.ApplicationGroup{},
 		"applications":       &models.Application{},

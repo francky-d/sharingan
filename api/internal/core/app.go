@@ -28,7 +28,7 @@ func (app App) Start() {
 	}
 	defer logger.Sync()
 
-	router := routes.ConstructRouter(logger)
+	router := routes.Router(logger)
 
 	logger.Fatal(router.Run(":" + os.Getenv("APP_PORT")).Error())
 }
