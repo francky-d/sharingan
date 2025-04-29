@@ -9,4 +9,6 @@ COPY go.mod  ./
 
 RUN go mod download
 
+RUN mkdir -p /app/logs && chmod 777 /app/logs
+
 CMD ["air", "-c", ".air.toml"]
