@@ -18,6 +18,7 @@ func init() {
 		log.Fatalf("Error while loading environments variables %v", err)
 	}
 
+	//TODO: better way to do this ?
 	migrations.Migrate()
 }
 
