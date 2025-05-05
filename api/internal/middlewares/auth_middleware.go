@@ -118,9 +118,9 @@ func getKeycloakClient(keycloakConfig KeycloakConfig) *gocloak.GoCloak {
 
 func getKeycloakConfig() KeycloakConfig {
 	return KeycloakConfig{
-		Host:         "http://keycloak:8080",
-		Realm:        "sharingan",
-		ClientID:     "sharingan-api",
+		Host:         "KEYCLOAK_HOST",
+		Realm:        "KEYCLOAK_REALM",
+		ClientID:     "KEYCLOAK_CLIENT_ID",
 		ClientSecret: os.Getenv("KEYCLOAK_CLIENT_SECRET"),
 	}
 }
