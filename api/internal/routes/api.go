@@ -3,15 +3,13 @@ package routes
 import (
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
-	"gitlab.jems-group.com/fdjacoto/sharingan/backend/internal/controllers"
 	"gitlab.jems-group.com/fdjacoto/sharingan/backend/internal/middlewares"
+	"gitlab.jems-group.com/fdjacoto/sharingan/backend/internal/response"
 	"go.uber.org/zap"
 	"net/http"
 )
 
-var applicationGrpController = controllers.NewApplicationGroupController()
-
-func constructRoutes(router *gin.Engine) {
+func constructRoutes(router *gin.Engine, logger *zap.Logger) {
 
 	router.GET("/health", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{
@@ -19,10 +17,10 @@ func constructRoutes(router *gin.Engine) {
 		})
 	})
 
-	swaggerRoutes(router)
+	apiErrResponse := response.NewApiErrorResponse()
 
 	apiV1 := router.Group("/api/v1")
-	apiV1.Use(middlewares.AuthenticationMiddleware())
+	apiV1.Use(middlewares.AuthenticationMiddleware(apiErrResponse, logger))
 
 	applicationGroupRoutes(apiV1)
 
@@ -46,6 +44,6 @@ func applyGlobalMiddlewares(router *gin.Engine, logger *zap.Logger) {
 func Router(logger *zap.Logger) *gin.Engine {
 	router := gin.New()
 	applyGlobalMiddlewares(router, logger)
-	constructRoutes(router)
+	constructRoutes(router, logger)
 	return router
 }
