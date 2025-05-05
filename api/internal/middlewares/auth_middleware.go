@@ -6,7 +6,8 @@ import (
 	"github.com/Nerzal/gocloak/v13"
 	"github.com/gin-gonic/gin"
 	customErrors "gitlab.jems-group.com/fdjacoto/sharingan/backend/internal/custom-errors"
-	"net/http"
+	"gitlab.jems-group.com/fdjacoto/sharingan/backend/internal/response"
+	"go.uber.org/zap"
 	"os"
 	"strings"
 	"time"
@@ -19,8 +20,10 @@ type KeycloakConfig struct {
 	ClientSecret string
 }
 
-func AuthenticationMiddleware() gin.HandlerFunc {
+func AuthenticationMiddleware(apiErrResponse *response.ApiErrorResponse, logger *zap.Logger) gin.HandlerFunc {
 	return func(c *gin.Context) {
+		apiErrResponse.SetContext(c)
+
 		accessToken, err := getTokenFromRequest(c)
 		keycloakConfig := getKeycloakConfig()
 		keycloakClient := getKeycloakClient(keycloakConfig)
@@ -28,11 +31,8 @@ func AuthenticationMiddleware() gin.HandlerFunc {
 		defer cancel()
 
 		if errors.Is(err, customErrors.TokenNotPresentErr) || errors.Is(err, customErrors.MustBeBearerToken) {
-			c.JSON(http.StatusBadRequest, gin.H{
-				"success": false,
-				"errors":  err.Error(),
-			})
 
+			apiErrResponse.SendBadRequestWithErr(err)
 			c.Abort()
 			return
 		}
@@ -40,21 +40,16 @@ func AuthenticationMiddleware() gin.HandlerFunc {
 		result, err := verifyTokenAgainstKeycloak(keycloakClient, keycloakConfig, accessToken, ctx)
 
 		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{
-				"success": false,
-				"errors":  customErrors.InternalServerErr.Error(),
-			})
+			logger.Error("Something went wrong while verifying token again keycloak : %v", zap.Error(err))
+
+			apiErrResponse.SendInternalServerWithErr(customErrors.InternalServerErr)
+
 			c.Abort()
 			return
-			//TODO:  logError
 		}
 
 		if !*result.Active {
-			c.JSON(http.StatusUnauthorized, gin.H{
-				"success": false,
-				"errors":  customErrors.UnauthorizedErr.Error(),
-			})
-
+			apiErrResponse.SendUnauthorizedWithErr(err)
 			c.Abort()
 			return
 		}
@@ -62,11 +57,10 @@ func AuthenticationMiddleware() gin.HandlerFunc {
 		user, err := fetchAuthenticatedUserFromKeycloak(keycloakClient, ctx, accessToken, keycloakConfig.Realm)
 
 		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{
-				"success": false,
-				"errors":  "An error occurred while retrieving user informations",
-			})
-			//TODO:  logError
+			logger.Error("An error occurred while retrieving user data", zap.Error(err))
+
+			apiErrResponse.SendInternalServerWithErr(errors.New("something went wrong on retrieving user data"))
+
 			c.Abort()
 			return
 		}
