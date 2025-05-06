@@ -2,11 +2,11 @@ package controllers
 
 import (
 	"errors"
-	"net/http"
-
 	"github.com/gin-gonic/gin"
 	"gitlab.jems-group.com/fdjacoto/sharingan/backend/internal/database"
 	"gitlab.jems-group.com/fdjacoto/sharingan/backend/internal/models"
+	"gitlab.jems-group.com/fdjacoto/sharingan/backend/internal/response"
+	"go.uber.org/zap"
 	"gorm.io/gorm"
 )
 
@@ -14,13 +14,15 @@ import (
 // swagger embed files
 
 type ApplicationGroupController struct {
+	response.Response
+	logger *zap.Logger
 }
 
 var controllerInstance *ApplicationGroupController
 
-func NewApplicationGroupController() *ApplicationGroupController {
+func NewApplicationGroupController(logger *zap.Logger) *ApplicationGroupController {
 	if controllerInstance == nil {
-		controllerInstance = &ApplicationGroupController{}
+		controllerInstance = &ApplicationGroupController{logger: logger}
 	}
 
 	return controllerInstance
@@ -29,6 +31,7 @@ func NewApplicationGroupController() *ApplicationGroupController {
 //	@BasePath	/api/v1
 
 // PingExample godoc
+//
 //	@Summary	ping example
 //	@Schemes
 //	@Description	do ping
@@ -42,22 +45,17 @@ func (controller *ApplicationGroupController) Index(c *gin.Context) {
 
 	database.DbConnection().Db().Find(&applicationsGroups)
 
-	c.JSON(http.StatusOK, gin.H{
-		"success": true,
-		"data": gin.H{
-			"application_groups": applicationsGroups,
-		},
+	controller.SendSuccessResponse(gin.H{
+		"application_groups": applicationsGroups,
 	})
+	return
 }
 
 func (controller *ApplicationGroupController) Store(c *gin.Context) {
 	var group models.ApplicationGroup
 
 	if err := c.ShouldBindJSON(&group); err != nil {
-		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
-			"success": false,
-			"error":   err.Error(),
-		})
+		controller.SendBadRequestWithErr(err)
 		return
 	}
 
@@ -65,15 +63,16 @@ func (controller *ApplicationGroupController) Store(c *gin.Context) {
 
 	result := database.DbConnection().Db().Create(&group)
 	if result.Error != nil {
-		c.AbortWithStatusJSON(http.StatusInternalServerError, result.Error.Error())
+		controller.logger.Error("Error on storing application group", zap.Error(result.Error))
+		controller.SendInternalServerWithErr()
+		return
 	}
 
-	c.JSON(http.StatusCreated, gin.H{
-		"success": true,
-		"data": gin.H{
-			"id": group.ID,
-		}},
-	)
+	controller.SendCreatedResponse(gin.H{
+		"id": group.ID,
+	})
+
+	return
 }
 
 func (controller *ApplicationGroupController) Show(c *gin.Context) {
@@ -84,10 +83,7 @@ func (controller *ApplicationGroupController) Show(c *gin.Context) {
 	var params idParams
 
 	if err := c.ShouldBindUri(&params); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"success": false,
-			"error":   "Invalid ID " + err.Error(),
-		})
+		controller.SendBadRequestWithErr(errors.New("Invalid ID " + err.Error()))
 		return
 	}
 
@@ -97,26 +93,19 @@ func (controller *ApplicationGroupController) Show(c *gin.Context) {
 
 	if result.Error != nil {
 		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
-			c.JSON(http.StatusNotFound, gin.H{
-				"success": false,
-				"error":   "Application group not found",
-			})
+			controller.SendNotFoundWithErr(
+				errors.New("application group not found"),
+			)
 
 			return
 		}
-
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"success": false,
-			"error":   "Something went wrong; Try later",
-		})
-
+		controller.logger.Error("Error on showing application group", zap.Error(result.Error))
+		controller.SendInternalServerWithErr()
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"success": true,
-		"data":    &group,
-	})
+	controller.SendSuccessResponse(gin.H{"group": &group})
+	return
 }
 
 func (controller *ApplicationGroupController) Update(c *gin.Context) {
@@ -128,10 +117,9 @@ func (controller *ApplicationGroupController) Update(c *gin.Context) {
 	var params idParams
 
 	if err := c.ShouldBindUri(&params); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"success": false,
-			"error":   "Invalid ID " + err.Error(),
-		})
+		controller.SendBadRequestWithErr(
+			errors.New("invalid ID " + err.Error()),
+		)
 		return
 	}
 
@@ -141,18 +129,13 @@ func (controller *ApplicationGroupController) Update(c *gin.Context) {
 
 	if result.Error != nil {
 		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
-			c.JSON(http.StatusNotFound, gin.H{
-				"success": false,
-				"error":   "Application group not found",
-			})
-
+			controller.SendNotFoundWithErr(
+				errors.New("application group not found"),
+			)
 			return
 		}
-
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"success": false,
-			"error":   "Something went wrong; Try later",
-		})
+		controller.logger.Error("Error on updating application group", zap.Error(result.Error))
+		controller.SendInternalServerWithErr()
 
 		return
 	}
@@ -160,10 +143,8 @@ func (controller *ApplicationGroupController) Update(c *gin.Context) {
 	group.Name = params.Name
 	database.DbConnection().Db().Save(&group)
 
-	c.JSON(http.StatusOK, gin.H{
-		"success": true,
-		"data":    nil,
-	})
+	controller.SendSuccessResponse(gin.H{"group": &group})
+	return
 }
 
 func (controller *ApplicationGroupController) Delete(c *gin.Context) {
@@ -175,10 +156,7 @@ func (controller *ApplicationGroupController) Delete(c *gin.Context) {
 	var params idParams
 
 	if err := c.ShouldBindUri(&params); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"success": false,
-			"error":   "Invalid ID " + err.Error(),
-		})
+		controller.SendBadRequestWithErr(errors.New("Invalid ID " + err.Error()))
 		return
 	}
 
@@ -188,26 +166,15 @@ func (controller *ApplicationGroupController) Delete(c *gin.Context) {
 
 	if result.Error != nil {
 		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
-			c.JSON(http.StatusNotFound, gin.H{
-				"success": false,
-				"error":   "Application group not found",
-			})
-
+			controller.SendBadRequestWithErr(errors.New("application group not found"))
 			return
 		}
 
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"success": false,
-			"error":   "Something went wrong; Try later",
-		})
-
+		controller.logger.Error("error on deleting group", zap.Uint("group ID", group.ID), zap.Error(result.Error))
+		controller.SendInternalServerWithErr()
 		return
 	}
 
 	database.DbConnection().Db().Delete(&group)
-
-	c.JSON(http.StatusOK, gin.H{
-		"success": true,
-		"data":    nil,
-	})
+	controller.SendNotContentResponse()
 }

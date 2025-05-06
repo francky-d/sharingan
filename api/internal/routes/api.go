@@ -22,7 +22,7 @@ func constructRoutes(router *gin.Engine, logger *zap.Logger) {
 	apiV1 := router.Group("/api/v1")
 	apiV1.Use(middlewares.AuthenticationMiddleware(apiErrResponse, logger))
 
-	applicationGroupRoutes(apiV1)
+	applicationGroupRoutes(apiV1, logger)
 
 }
 

@@ -2,6 +2,7 @@ package response
 
 import (
 	"github.com/gin-gonic/gin"
+	custom_errors "gitlab.jems-group.com/fdjacoto/sharingan/backend/internal/custom-errors"
 	"net/http"
 )
 
@@ -40,10 +41,14 @@ func (resp *ApiErrorResponse) SendForbiddenWithErr(err error) {
 	resp.sendError(http.StatusForbidden, err)
 }
 
-func (resp *ApiErrorResponse) SendInternalServerWithErr(err error) {
-	resp.sendError(http.StatusInternalServerError, err)
+func (resp *ApiErrorResponse) SendInternalServerWithErr() {
+	resp.sendError(http.StatusInternalServerError, custom_errors.InternalServerErr)
 }
 
 func (resp *ApiErrorResponse) SendNotFoundWithErr(err error) {
 	resp.sendError(http.StatusNotFound, err)
+}
+
+func (resp *ApiErrorResponse) Abort() {
+	resp.ctx.Abort()
 }
