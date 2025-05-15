@@ -1,3 +1,0 @@
-{"level":"INFO","timestamp":"2025-05-14T14:54:13.603Z","message":"Incoming Request","method":"GET","path":"/api/v1/applications-groups/","status":400,"latency":"50.363µs"}
-{"level":"INFO","timestamp":"2025-05-14T14:55:18.872Z","message":"Incoming Request","method":"GET","path":"/api/v1/applications-groups/","status":400,"latency":"39.537µs"}
-{"level":"INFO","timestamp":"2025-05-14T14:55:19.966Z","message":"Incoming Request","method":"GET","path":"/api/v1/applications-groups/","status":400,"latency":"27.641µs"}

@@ -40,7 +40,7 @@ func AuthenticationMiddleware(apiErrResponse *response.ApiErrorResponse, logger 
 		result, err := verifyTokenAgainstKeycloak(keycloakClient, keycloakConfig, accessToken, ctx)
 
 		if err != nil {
-			logger.Error("Something went wrong while verifying token again keycloak : %v", zap.Error(err))
+			logger.Error("Something went wrong while verifying token again keycloak : ", zap.Error(err))
 			apiErrResponse.SendInternalServerWithErr()
 
 			c.Abort()
@@ -112,9 +112,9 @@ func getKeycloakClient(keycloakConfig KeycloakConfig) *gocloak.GoCloak {
 
 func getKeycloakConfig() KeycloakConfig {
 	return KeycloakConfig{
-		Host:         "KEYCLOAK_HOST",
-		Realm:        "KEYCLOAK_REALM",
-		ClientID:     "KEYCLOAK_CLIENT_ID",
+		Host:         os.Getenv("KEYCLOAK_HOST"),
+		Realm:        os.Getenv("KEYCLOAK_REALM"),
+		ClientID:     os.Getenv("KEYCLOAK_CLIENT_ID"),
 		ClientSecret: os.Getenv("KEYCLOAK_CLIENT_SECRET"),
 	}
 }
