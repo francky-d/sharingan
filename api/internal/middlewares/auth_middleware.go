@@ -41,8 +41,7 @@ func AuthenticationMiddleware(apiErrResponse *response.ApiErrorResponse, logger 
 
 		if err != nil {
 			logger.Error("Something went wrong while verifying token again keycloak : %v", zap.Error(err))
-
-			apiErrResponse.SendInternalServerWithErr(customErrors.InternalServerErr)
+			apiErrResponse.SendInternalServerWithErr()
 
 			c.Abort()
 			return
@@ -57,9 +56,10 @@ func AuthenticationMiddleware(apiErrResponse *response.ApiErrorResponse, logger 
 		user, err := fetchAuthenticatedUserFromKeycloak(keycloakClient, ctx, accessToken, keycloakConfig.Realm)
 
 		if err != nil {
+
 			logger.Error("An error occurred while retrieving user data", zap.Error(err))
 
-			apiErrResponse.SendInternalServerWithErr(errors.New("something went wrong on retrieving user data"))
+			apiErrResponse.SendInternalServerWithErr()
 
 			c.Abort()
 			return

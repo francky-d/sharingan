@@ -12,7 +12,7 @@ import (
 func NewLoggerWithFile() (*zap.Logger, error) {
 	today := time.Now().Format("2006-01-02")
 
-	err := os.MkdirAll("logs", os.ModePerm)
+	err := os.MkdirAll("logs", 0755)
 
 	if err != nil {
 		return nil, fmt.Errorf("error while creating/opening 'logs' directory %w", err)
