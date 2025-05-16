@@ -10,7 +10,6 @@ type TableMappingToModel map[string]contract.ModelInterface
 func Migrations() TableMappingToModel {
 
 	return TableMappingToModel{
-		"users":              &models.User{},
 		"application_groups": &models.ApplicationGroup{},
 		"applications":       &models.Application{},
 		"incidents":          &models.Incident{},
