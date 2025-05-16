@@ -19,8 +19,6 @@ type ApplicationGroupController struct {
 	logger *zap.Logger
 }
 
-var controllerInstance *ApplicationGroupController
-
 func NewApplicationGroupController(logger *zap.Logger) *ApplicationGroupController {
 	return &ApplicationGroupController{logger: logger}
 }
