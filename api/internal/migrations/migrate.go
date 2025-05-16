@@ -7,7 +7,7 @@ import (
 	"gitlab.jems-group.com/fdjacoto/sharingan/backend/internal/database"
 )
 
-func Migrate() {
+func Migrate() error {
 
 	dbConnection := database.DbConnection()
 
@@ -23,7 +23,14 @@ func Migrate() {
 		}
 
 		fmt.Printf("Migrating table '%s' associated to model '%v' \n", table, modelName)
-		dbConnection.Db().AutoMigrate(model)
+
+		err := dbConnection.Db().AutoMigrate(model)
+
+		if err != nil {
+			return fmt.Errorf("error occured during migration %w", err)
+		}
+		return nil
+
 	}
 
 	fmt.Println("\nMigrations terminated")

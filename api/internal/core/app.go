@@ -19,7 +19,11 @@ func init() {
 	}
 
 	//TODO: better way to do this ?
-	migrations.Migrate()
+	err = migrations.Migrate()
+
+	if err != nil {
+		log.Fatal(err)
+	}
 }
 
 func (app App) Start() {
