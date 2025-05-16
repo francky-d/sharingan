@@ -31,7 +31,12 @@ func (app App) Start() {
 	if err != nil {
 		log.Fatalf("error while creating logger : %v", err)
 	}
-	defer logger.Sync()
+	defer func() {
+		err := logger.Sync()
+		if err != nil {
+			log.Printf("error occured while zap flushing logs : %v", err)
+		}
+	}()
 
 	router := routes.Router(logger)
 
