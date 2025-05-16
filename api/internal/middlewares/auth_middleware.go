@@ -40,15 +40,15 @@ func AuthenticationMiddleware(apiErrResponse *response.ApiErrorResponse, logger 
 		result, err := verifyTokenAgainstKeycloak(keycloakClient, keycloakConfig, accessToken, ctx)
 
 		if err != nil {
-			logger.Error("Something went wrong while verifying token again keycloak : ", zap.Error(err))
-			apiErrResponse.SendInternalServerWithErr()
+			logger.Error("Something went wrong while verifying token against keycloak : ", zap.Error(err))
+			apiErrResponse.SendInternalServerErr()
 
 			c.Abort()
 			return
 		}
 
 		if !*result.Active {
-			apiErrResponse.SendUnauthorizedWithErr(err)
+			apiErrResponse.SendUnauthorizedWithErr(errors.New("invalid token"))
 			c.Abort()
 			return
 		}
@@ -59,7 +59,7 @@ func AuthenticationMiddleware(apiErrResponse *response.ApiErrorResponse, logger 
 
 			logger.Error("An error occurred while retrieving user data", zap.Error(err))
 
-			apiErrResponse.SendInternalServerWithErr()
+			apiErrResponse.SendInternalServerErr()
 
 			c.Abort()
 			return

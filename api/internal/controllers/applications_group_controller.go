@@ -3,7 +3,9 @@ package controllers
 import (
 	"errors"
 	"github.com/gin-gonic/gin"
+	"gitlab.jems-group.com/fdjacoto/sharingan/backend/internal/custom-errors"
 	"gitlab.jems-group.com/fdjacoto/sharingan/backend/internal/database"
+	"gitlab.jems-group.com/fdjacoto/sharingan/backend/internal/helpers"
 	"gitlab.jems-group.com/fdjacoto/sharingan/backend/internal/models"
 	"gitlab.jems-group.com/fdjacoto/sharingan/backend/internal/response"
 	"go.uber.org/zap"
@@ -49,20 +51,28 @@ func (controller *ApplicationGroupController) Index(ctx *gin.Context) {
 }
 
 func (controller *ApplicationGroupController) Store(ctx *gin.Context) {
-	var group models.ApplicationGroup
+	user, err := helpers.GetAuthenticatedUser(ctx)
 	resp := response.NewResponse(ctx)
+
+	if err != nil {
+		controller.logger.Error(custom_errors.OnGettingAuthenticatedUser.Error(), zap.Error(err))
+		resp.Error().SendInternalServerErr()
+		return
+	}
+
+	var group models.ApplicationGroup
 
 	if err := ctx.ShouldBindJSON(&group); err != nil {
 		resp.Error().SendBadRequestWithErr(err)
 		return
 	}
 
-	group.UserID = uint(1)
+	group.UserID = *user.Sub
 
 	result := database.DbConnection().Db().Create(&group)
 	if result.Error != nil {
 		controller.logger.Error("Error on storing application group", zap.Error(result.Error))
-		resp.Error().SendInternalServerWithErr()
+		resp.Error().SendInternalServerErr()
 		return
 	}
 
@@ -99,7 +109,7 @@ func (controller *ApplicationGroupController) Show(ctx *gin.Context) {
 			return
 		}
 		controller.logger.Error("Error on showing application group", zap.Error(result.Error))
-		resp.Error().SendInternalServerWithErr()
+		resp.Error().SendInternalServerErr()
 		return
 	}
 
@@ -135,7 +145,7 @@ func (controller *ApplicationGroupController) Update(ctx *gin.Context) {
 			return
 		}
 		controller.logger.Error("Error on updating application group", zap.Error(result.Error))
-		resp.Error().SendInternalServerWithErr()
+		resp.Error().SendInternalServerErr()
 
 		return
 	}
@@ -172,7 +182,7 @@ func (controller *ApplicationGroupController) Delete(ctx *gin.Context) {
 		}
 
 		controller.logger.Error("error on deleting group", zap.Uint("group ID", group.ID), zap.Error(result.Error))
-		resp.Error().SendInternalServerWithErr()
+		resp.Error().SendInternalServerErr()
 		return
 	}
 
