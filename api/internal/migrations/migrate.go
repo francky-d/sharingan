@@ -29,10 +29,10 @@ func Migrate() error {
 		if err != nil {
 			return fmt.Errorf("error occured during migration %w", err)
 		}
-		return nil
-
 	}
 
 	fmt.Println("\nMigrations terminated")
 	fmt.Print("\n")
+
+	return nil
 }
