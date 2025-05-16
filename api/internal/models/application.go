@@ -1,15 +1,16 @@
 package models
 
-import "gorm.io/gorm"
+import (
+	"gorm.io/gorm"
+)
 
 type Application struct {
 	gorm.Model
-	UserID             uint
+	UserID             string `json:"user_id" gorm:"foreignKey:-"`
 	ApplicationGroupID uint
 	Url                string
 	UrlToWatch         string
 	HttpSuccessCode    int
-	User               User
 	ApplicationGroup   ApplicationGroup
 	Incidents          []Incident
 }

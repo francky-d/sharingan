@@ -1,14 +1,15 @@
 package models
 
-import "gorm.io/gorm"
+import (
+	"gorm.io/gorm"
+)
 
 type Incident struct {
 	gorm.Model
-	UserID        uint
+	UserID        string `json:"user_id" gorm:"foreignKey:-"`
 	ApplicationID uint
 	Title         string
 	Description   string
-	User          User
 	Application   Application
 }
 

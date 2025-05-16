@@ -6,9 +6,8 @@ import (
 
 type ApplicationGroup struct {
 	gorm.Model
+	UserID       string        `json:"user_id" gorm:"foreignKey:-"`
 	Name         string        `json:"name" binding:"required,min=1,max=255"`
-	UserID       uint          `json:"user_id"`
-	User         User          `json:"user"`
 	Applications []Application `json:"applications"`
 }
 
