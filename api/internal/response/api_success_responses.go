@@ -16,31 +16,31 @@ func NewApiSuccessResponse() *ApiSuccessResponse {
 }
 
 func (resp *ApiSuccessResponse) SetContext(ctx *gin.Context) {
-	resp.SetContext(ctx)
+	resp.ctx = ctx
 }
 
 func (resp *ApiSuccessResponse) SetData(data any) {
 	resp.data = data
 }
 
-func (resp *ApiErrorResponse) sendResponse(status int, data any) {
+func (resp *ApiSuccessResponse) sendResponse(status int, data any) {
 	resp.ctx.JSON(status, gin.H{
 		"data": data,
 	})
 }
 
-func (resp *ApiErrorResponse) SendCreatedResponse(data interface{}) {
+func (resp *ApiSuccessResponse) SendCreated(data interface{}) {
 	resp.ctx.JSON(http.StatusCreated, gin.H{
 		"data": data,
 	})
 }
 
-func (resp *ApiErrorResponse) SendSuccessResponse(data interface{}) {
+func (resp *ApiSuccessResponse) SendOk(data interface{}) {
 	resp.ctx.JSON(http.StatusOK, gin.H{
 		"data": data,
 	})
 }
 
-func (resp *ApiErrorResponse) SendNotContentResponse() {
+func (resp *ApiSuccessResponse) SendNoContent() {
 	resp.ctx.JSON(http.StatusNoContent, nil)
 }
