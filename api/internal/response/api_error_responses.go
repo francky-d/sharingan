@@ -41,7 +41,7 @@ func (resp *ApiErrorResponse) SendForbiddenWithErr(err error) {
 	resp.sendError(http.StatusForbidden, err)
 }
 
-func (resp *ApiErrorResponse) SendInternalServerWithErr() {
+func (resp *ApiErrorResponse) SendInternalServerErr() {
 	resp.sendError(http.StatusInternalServerError, custom_errors.InternalServerErr)
 }
 
