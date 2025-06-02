@@ -28,8 +28,9 @@ test_api:
   stage: test
   image: golang:${GO_VERSION}
   script:
+    - cd api
     - go mod tidy
-    - go test -v ./api/...
+    - go test -v ./...
 
 
 build_api:
