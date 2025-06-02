@@ -41,7 +41,7 @@ build_api:
     - docker:dind
   before_script:
     - docker login -u "$DOCKER_HUB_USERNAME" -p "$DOCKER_HUB_PASSWORD"
-    - source VERSION.txt
+    - source ./api/API_VERSION.txt
   script:
 
     - docker build -t $API_IMAGE_NAME:latest ./api
@@ -61,7 +61,7 @@ push_to_registry:
     - docker:dind
   before_script:
     - docker login -u "$DOCKER_HUB_USERNAME" -p "$DOCKER_HUB_PASSWORD"
-    - source VERSION.txt
+    - source ./api/API_VERSION.txt
   script:
     - docker load < "$API_IMAGE_NAME-$VERSION.tar"
     - docker push $API_IMAGE_NAME:latest
