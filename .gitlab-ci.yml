@@ -6,15 +6,26 @@ stages:
 
 variables:
   GO_VERSION: "1.24"
-  IMAGE_NAME: "15932/sharingan-api"
+  API_IMAGE_NAME: "15932/sharingan-api"
 
-lint:
+.api:
+  only:
+    refs:
+      - main
+      - develop
+    changes:
+      - api/**
+
+lint_api:
+  extends: .api
   stage: lint
   image: golangci/golangci-lint:latest
   script:
     - golangci-lint run ./...
 
-test:
+
+test_api:
+  extends: .api
   stage: test
   image: golang:${GO_VERSION}
   script:
@@ -22,7 +33,8 @@ test:
     - go test -v ./...
 
 
-build:
+build_api:
+  extends: .api
   stage: build
   image: docker:latest
   services:
@@ -32,19 +44,17 @@ build:
     - source VERSION.txt
   script:
 
-    - docker build -t $IMAGE_NAME:latest .
-    - docker tag $IMAGE_NAME:latest $IMAGE_NAME:$VERSION
-    - docker save -o "$IMAGE_NAME-$VERSION.tar" $IMAGE_NAME:$VERSION
+    - docker build -t $API_IMAGE_NAME:latest .
+    - docker tag $API_IMAGE_NAME:latest $API_IMAGE_NAME:$VERSION
+    - docker save -o "$API_IMAGE_NAME-$VERSION.tar" $API_IMAGE_NAME:$VERSION
   artifacts:
     name: "$CI_PROJECT_NAME-$VERSION"
     paths:
-      - "$IMAGE_NAME-$VERSION.tar"
-  only:
-    - main
-    - develop
+      - "$API_IMAGE_NAME-$VERSION.tar"
 
 
 push_to_registry:
+  extends: .api
   stage: push
   image: docker:latest
   services:
@@ -53,9 +63,6 @@ push_to_registry:
     - docker login -u "$DOCKER_HUB_USERNAME" -p "$DOCKER_HUB_PASSWORD"
     - source VERSION.txt
   script:
-    - docker load < "$IMAGE_NAME-$VERSION.tar"
-    - docker push $IMAGE_NAME:latest
-    - docker push $IMAGE_NAME:$VERSION
-  only:
-    - main
-    - develop
+    - docker load < "$API_IMAGE_NAME-$VERSION.tar"
+    - docker push $API_IMAGE_NAME:latest
+    - docker push $API_IMAGE_NAME:$VERSION
