@@ -1,0 +1,22 @@
+stages:
+  - lint
+  - test
+  - build
+  - deploy
+
+lint:
+  image: golang:1.24-alpine
+  stage: lint
+  script: go fmt
+
+
+test:
+  stage: test
+  image: golang:1.24-alpine
+  script:
+    - go test -coverprofile=coverage.out
+    - go tool cover -html=coverage.out
+
+build:
+  stage: build
+  image: docker
