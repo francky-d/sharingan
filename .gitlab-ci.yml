@@ -13,8 +13,6 @@ variables:
     refs:
       - main
       - develop
-    changes:
-      - api/**
 
 lint_api:
   extends: .api
