@@ -21,7 +21,8 @@ lint_api:
   stage: lint
   image: golangci/golangci-lint:latest
   script:
-    - golangci-lint run ./...
+    - cd api
+    - golangci-lint run ./api/...
 
 
 test_api:
@@ -30,7 +31,7 @@ test_api:
   image: golang:${GO_VERSION}
   script:
     - go mod tidy
-    - go test -v ./...
+    - go test -v ./api/...
 
 
 build_api:
@@ -44,7 +45,7 @@ build_api:
     - source VERSION.txt
   script:
 
-    - docker build -t $API_IMAGE_NAME:latest .
+    - docker build -t $API_IMAGE_NAME:latest ./api
     - docker tag $API_IMAGE_NAME:latest $API_IMAGE_NAME:$VERSION
     - docker save -o "$API_IMAGE_NAME-$VERSION.tar" $API_IMAGE_NAME:$VERSION
   artifacts:
