@@ -38,7 +38,11 @@ build_api:
   stage: build
   image: docker:latest
   services:
-    - docker:dind
+    - name: docker:dind
+      command: [ "--tls=false" ]
+  variables:
+    DOCKER_HOST: tcp://docker:2375
+    DOCKER_TLS_CERTDIR: ""
   before_script:
     - docker login -u "$DOCKER_HUB_USERNAME" -p "$DOCKER_HUB_PASSWORD"
     - source ./api/API_VERSION.txt
@@ -58,7 +62,11 @@ push_to_registry:
   stage: push
   image: docker:latest
   services:
-    - docker:dind
+    - name: docker:dind
+      command: [ "--tls=false" ]
+  variables:
+    DOCKER_HOST: tcp://docker:2375
+    DOCKER_TLS_CERTDIR: ""
   before_script:
     - docker login -u "$DOCKER_HUB_USERNAME" -p "$DOCKER_HUB_PASSWORD"
     - source ./api/API_VERSION.txt
