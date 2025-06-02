@@ -2,21 +2,60 @@ stages:
   - lint
   - test
   - build
-  - deploy
+  - push
+
+variables:
+  GO_VERSION: "1.24"
+  IMAGE_NAME: "15932/sharingan-api"
 
 lint:
-  image: golang:1.24-alpine
   stage: lint
-  script: go fmt
-
+  image: golangci/golangci-lint:latest
+  script:
+    - golangci-lint run ./...
 
 test:
   stage: test
-  image: golang:1.24-alpine
+  image: golang:${GO_VERSION}
   script:
-    - go test -coverprofile=coverage.out
-    - go tool cover -html=coverage.out
+    - go mod tidy
+    - go test -v ./...
+
 
 build:
   stage: build
-  image: docker
+  image: docker:latest
+  services:
+    - docker:dind
+  before_script:
+    - docker login -u "$DOCKER_HUB_USERNAME" -p "$DOCKER_HUB_PASSWORD"
+    - source VERSION.txt
+  script:
+
+    - docker build -t $IMAGE_NAME:latest .
+    - docker tag $IMAGE_NAME:latest $IMAGE_NAME:$VERSION
+    - docker save -o "$IMAGE_NAME-$VERSION.tar" $IMAGE_NAME:$VERSION
+  artifacts:
+    name: "$CI_PROJECT_NAME-$VERSION"
+    paths:
+      - "$IMAGE_NAME-$VERSION.tar"
+  only:
+    - main
+    - develop
+
+
+push_to_registry:
+  stage: push
+  image: docker:latest
+  services:
+    - docker:dind
+  before_script:
+    - docker login -u "$DOCKER_HUB_USERNAME" -p "$DOCKER_HUB_PASSWORD"
+    - source VERSION.txt
+  script:
+    - docker load < "$IMAGE_NAME-$VERSION.tar"
+    - docker push $IMAGE_NAME:latest
+    - docker push $IMAGE_NAME:$VERSION
+  only:
+    - main
+    - develop
