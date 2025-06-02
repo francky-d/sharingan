@@ -9,10 +9,10 @@ func Add(number1, number2 int) int {
 }
 
 func TestExample(t *testing.T) {
-	want := 3
+	wanted := 3
 	got := Add(1, 2)
 
-	if want != got {
-		t.Errorf("want %d but go %d", want, got)
+	if wanted != got {
+		t.Errorf("want %d but go %d", wanted, got)
 	}
 }
