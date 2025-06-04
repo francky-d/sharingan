@@ -42,10 +42,8 @@ build_api:
   variables:
     DOCKER_HOST: tcp://docker:2375
     DOCKER_TLS_CERTDIR: ""
-  before_script:
-    - docker login -u "$DOCKER_HUB_USERNAME" -p "$DOCKER_HUB_PASSWORD"
-    - source ./api/API_VERSION.txt
   script:
+    - export API_VERSION=$(cat ./api/API_VERSION.txt)
     - docker build -t $FULL_API_IMAGE_NAME:latest ./api
     - docker tag $FULL_API_IMAGE_NAME:latest $FULL_API_IMAGE_NAME:$API_VERSION
     - docker images
@@ -67,9 +65,10 @@ push_to_registry:
     DOCKER_HOST: tcp://docker:2375
     DOCKER_TLS_CERTDIR: ""
   before_script:
-    - docker login -u "$DOCKER_HUB_USERNAME" -p "$DOCKER_HUB_PASSWORD"
+    - echo "$CI_REGISTRY_PASSWORD" | docker login $CI_REGISTRY -u $CI_REGISTRY_USER --password-stdin
     - source ./api/API_VERSION.txt
   script:
+    - export API_VERSION=$(cat ./api/API_VERSION.txt)
     - docker load < "$API_IMAGE_NAME-$API_VERSION.tar"
     - docker images
     - docker push $API_IMAGE_NAME:latest
