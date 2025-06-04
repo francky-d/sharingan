@@ -48,11 +48,11 @@ build_api:
   script:
     - docker build -t $FULL_API_IMAGE_NAME:latest ./api
     - docker tag $FULL_API_IMAGE_NAME:latest $FULL_API_IMAGE_NAME:$VERSION
-    - docker save -o "API_IMAGE_NAME-$VERSION.tar" $FULL_API_IMAGE_NAME:$VERSION
+    - docker save -o "$API_IMAGE_NAME-$VERSION.tar" $FULL_API_IMAGE_NAME:$VERSION
   artifacts:
     name: "$CI_PROJECT_NAME-$VERSION"
     paths:
-      - "API_IMAGE_NAME-$VERSION.tar"
+      - "$API_IMAGE_NAME-$VERSION.tar"
 
 push_to_registry:
   extends: .api
