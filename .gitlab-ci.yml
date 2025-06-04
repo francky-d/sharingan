@@ -52,7 +52,7 @@ build_api:
   artifacts:
     name: "$CI_PROJECT_NAME-$API_VERSION"
     paths:
-      - "$API_IMAGE_NAME-$API_VERSION.tar"
+      - "sharingan-api-*.tar"
 
 push_to_registry:
   extends: .api
