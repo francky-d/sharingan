@@ -6,7 +6,8 @@ stages:
 
 variables:
   GO_VERSION: "1.24"
-  API_IMAGE_NAME: "15932/sharingan-api"
+  API_IMAGE_NAME: "sharingan-api"
+  FULL_API_IMAGE_NAME: "15932/sharingan-api"
 
 .api:
   only:
@@ -22,7 +23,6 @@ lint_api:
     - cd api
     - golangci-lint run ./api/...
 
-
 test_api:
   extends: .api
   stage: test
@@ -32,14 +32,13 @@ test_api:
     - go mod tidy
     - go test -v ./...
 
-
 build_api:
   extends: .api
   stage: build
   image: docker:latest
   services:
     - name: docker:dind
-      command: [ "--tls=false" ]
+      command: ["--tls=false"]
   variables:
     DOCKER_HOST: tcp://docker:2375
     DOCKER_TLS_CERTDIR: ""
@@ -47,15 +46,13 @@ build_api:
     - docker login -u "$DOCKER_HUB_USERNAME" -p "$DOCKER_HUB_PASSWORD"
     - source ./api/API_VERSION.txt
   script:
-
-    - docker build -t $API_IMAGE_NAME:latest ./api
-    - docker tag $API_IMAGE_NAME:latest $API_IMAGE_NAME:$VERSION
-    - docker save -o "$API_IMAGE_NAME-$VERSION.tar" $API_IMAGE_NAME:$VERSION
+    - docker build -t $FULL_API_IMAGE_NAME:latest ./api
+    - docker tag $FULL_API_IMAGE_NAME:latest $FULL_API_IMAGE_NAME:$VERSION
+    - docker save -o "API_IMAGE_NAME-$VERSION.tar" $FULL_API_IMAGE_NAME:$VERSION
   artifacts:
     name: "$CI_PROJECT_NAME-$VERSION"
     paths:
-      - "$API_IMAGE_NAME-$VERSION.tar"
-
+      - "API_IMAGE_NAME-$VERSION.tar"
 
 push_to_registry:
   extends: .api
@@ -63,7 +60,7 @@ push_to_registry:
   image: docker:latest
   services:
     - name: docker:dind
-      command: [ "--tls=false" ]
+      command: ["--tls=false"]
   variables:
     DOCKER_HOST: tcp://docker:2375
     DOCKER_TLS_CERTDIR: ""
