@@ -50,6 +50,7 @@ build_api:
     - docker tag $FULL_API_IMAGE_NAME:latest $FULL_API_IMAGE_NAME:$API_VERSION
     - docker images
     - docker save -o "$API_IMAGE_NAME-$API_VERSION.tar" $FULL_API_IMAGE_NAME:$API_VERSION
+    - ls -l *.tar | grep $API_IMAGE_NAME
   artifacts:
     name: "$CI_PROJECT_NAME-$API_VERSION"
     paths:
