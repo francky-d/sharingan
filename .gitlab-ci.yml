@@ -48,6 +48,7 @@ build_api:
   script:
     - docker build -t $FULL_API_IMAGE_NAME:latest ./api
     - docker tag $FULL_API_IMAGE_NAME:latest $FULL_API_IMAGE_NAME:$VERSION
+    - docker images
     - docker save -o "$API_IMAGE_NAME-$VERSION.tar" $FULL_API_IMAGE_NAME:$VERSION
   artifacts:
     name: "$CI_PROJECT_NAME-$VERSION"
@@ -69,5 +70,6 @@ push_to_registry:
     - source ./api/API_VERSION.txt
   script:
     - docker load < "$API_IMAGE_NAME-$VERSION.tar"
+    - docker images
     - docker push $API_IMAGE_NAME:latest
     - docker push $API_IMAGE_NAME:$VERSION
