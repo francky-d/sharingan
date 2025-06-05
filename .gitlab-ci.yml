@@ -1,11 +1,13 @@
 stages:
   - lint
   - test
-  - build_and_push
+  - build_scan_push
 
 variables:
   GO_VERSION: "1.24"
   API_IMAGE_NAME: "${CI_REGISTRY_IMAGE}/sharingan-api"
+  TRIVY_SEVERITY: "HIGH,CRITICAL"
+  TRIVY_VULN_TYPE: "os,library"
 
 .api:
   only:
@@ -30,9 +32,9 @@ test_api:
     - go mod tidy
     - go test -v ./...
 
-build_and_push_api:
+build_scan_push_api:
   extends: .api
-  stage: build_and_push
+  stage: build_scan_push
   image: docker:latest
   services:
     - name: docker:dind
@@ -41,11 +43,32 @@ build_and_push_api:
     DOCKER_HOST: tcp://docker:2375
     DOCKER_TLS_CERTDIR: ""
   before_script:
-    - echo "$CI_REGISTRY_PASSWORD" | docker login $CI_REGISTRY -u $CI_REGISTRY_USER --password-stdin
+    - apk add --no-cache curl
+    - curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sh -s -- -b /usr/local/bin
+    - docker login -u $CI_REGISTRY_USER -p $CI_JOB_TOKEN $CI_REGISTRY
   script:
     - source ./api/API_VERSION.txt
-    - docker build -t $API_IMAGE_NAME:latest ./api
-    - docker tag $API_IMAGE_NAME:latest $API_IMAGE_NAME:$API_VERSION
-    - docker images
-    - docker push $API_IMAGE_NAME:latest
+    - docker build -t $API_IMAGE_NAME:$API_VERSION ./api
+    - docker tag $API_IMAGE_NAME:$API_VERSION $API_IMAGE_NAME:latest
+
+    - |
+      echo "Scanning image for vulnerabilities..."
+      trivy image --exit-code 0 --severity $TRIVY_SEVERITY --vuln-type $TRIVY_VULN_TYPE --format json --output trivy-results.json $API_IMAGE_NAME:$API_VERSION
+
+      # Now check if there are vulnerabilities that match our criteria
+      VULN_COUNT=$(cat trivy-results.json | grep -c "\"Severity\":\"$TRIVY_SEVERITY\"" || true)
+      if [ $VULN_COUNT -gt 0 ]; then
+        echo "WARNING: Found $VULN_COUNT $TRIVY_SEVERITY vulnerabilities!"
+        exit 1
+      else
+        echo "No $TRIVY_SEVERITY vulnerabilities found."
+      fi
+
     - docker push $API_IMAGE_NAME:$API_VERSION
+    - docker push $API_IMAGE_NAME:latest
+
+  artifacts:
+    paths:
+      - trivy-results.json
+    when: always
+    expire_in: 1 week
