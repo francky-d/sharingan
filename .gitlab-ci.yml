@@ -5,7 +5,7 @@ stages:
 
 variables:
   GO_VERSION: "1.24"
-  API_IMAGE_NAME: "15932/sharingan-api"
+  API_IMAGE_NAME: "${CI_REGISTRY_IMAGE}/sharingan-api"
 
 .api:
   only:
