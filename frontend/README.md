@@ -1,36 +1,68 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Sharingan Frontend
+
+The Sharingan Frontend is a Next.js application that provides a user interface for the Sharingan application monitoring system.
 
 ## Getting Started
 
-First, run the development server:
+### Prerequisites
+
+- Node.js 18+
+- npm or yarn
+
+### Development
 
 ```bash
+# Install dependencies
+npm install
+
+# Run development server
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+
+# Build for production
+npm run build
+
+# Start production server
+npm run start
+
+# Run linting
+npm run lint
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Project Structure
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```
+frontend/
+├── public/           # Static files
+├── src/              # Source code
+│   ├── app/          # Next.js app directory
+│   │   ├── api/      # API routes
+│   │   │   └── auth/ # Authentication endpoints
+│   │   └── components/ # React components
+│   ├── pages/        # Page components
+│   └── styles/       # CSS styles
+├── next.config.ts    # Next.js configuration
+└── tsconfig.json     # TypeScript configuration
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Key Features
 
-## Learn More
+- **Authentication**: Integration with Keycloak for secure user authentication
+- **Application Dashboard**: Monitor and manage applications
+- **Incident Management**: Track and respond to application incidents
+- **User Subscriptions**: Subscribe to application alerts
+- **Responsive UI**: Mobile-friendly interface
 
-To learn more about Next.js, take a look at the following resources:
+## Environment Configuration
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Create a `.env.local` file in the frontend directory with the following variables:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```
+NEXT_PUBLIC_API_URL=http://localhost:8000
+NEXT_PUBLIC_KEYCLOAK_URL=http://localhost:8080
+NEXT_PUBLIC_KEYCLOAK_REALM=sharingan
+NEXT_PUBLIC_KEYCLOAK_CLIENT_ID=frontend
+```
 
-## Deploy on Vercel
+## Authentication Flow
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+The frontend uses Next.js with NextAuth.js for authentication, integrating with Keycloak as the identity provider. The authentication flow is illustrated in the main project README.
