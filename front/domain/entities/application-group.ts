@@ -1,7 +1,7 @@
 import { Application } from "./application"
 
 export interface ApplicationGroup {
-    ID: Number,
+    ID: number,
     Name: string,
     Applications: Application[]
 }

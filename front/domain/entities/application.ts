@@ -1,4 +1,4 @@
-import { ApplicationGroups } from "./application-groups"
+import { ApplicationGroup } from "./application-group"
 import { Incident } from "./Incident"
 
 export interface Application {
@@ -7,7 +7,7 @@ export interface Application {
     Url: string
     UrlToWatch: string
     HttpSuccessCode: Number,
-    ApplicationGroup: ApplicationGroups
+    ApplicationGroup: ApplicationGroup
     Incidents: Incident[]
 
 }
