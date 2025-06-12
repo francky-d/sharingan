@@ -11,7 +11,7 @@ export const fetchApplications = createAsyncThunk("applications/fetchApplication
 )
 
 export const createApplication = createAsyncThunk("applications/createApplicaton",
-    async (applicaton: Application) => {
-        return await applicationService.createApplication(applicaton)
+    async (application: Application) => {
+        return await applicationService.createApplication(application)
     }
 )
