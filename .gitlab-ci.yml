@@ -6,7 +6,8 @@ stages:
 variables:
   GO_VERSION: "1.24"
   API_IMAGE_NAME: "${CI_REGISTRY_IMAGE}/sharingan-api"
-  TRIVY_SEVERITY: "HIGH,CRITICAL"
+  TRIVY_SEVERITY_HIGH: "HIGH"
+  TRIVY_SEVERITY_CRITICAL: "CRITICAL"
   TRIVY_VULN_TYPE: "os,library"
 
 .api:
@@ -53,15 +54,15 @@ build_scan_push_api:
 
     - |
       echo "Scanning image for vulnerabilities..."
-      trivy image --exit-code 0 --severity $TRIVY_SEVERITY --vuln-type $TRIVY_VULN_TYPE --format json --output trivy-results.json $API_IMAGE_NAME:$API_VERSION
+      trivy image --exit-code 0 --severity "$TRIVY_SEVERITY_HIGH,$TRIVY_SEVERITY_CRITICAL" --vuln-type $TRIVY_VULN_TYPE --format json --output trivy-results.json $API_IMAGE_NAME:$API_VERSION
 
       # Now check if there are vulnerabilities that match our criteria
-      VULN_COUNT=$(cat trivy-results.json | grep -c "\"Severity\":\"$TRIVY_SEVERITY\"" || true)
+      VULN_COUNT=$(grep -E -c "\"Severity\":\"($TRIVY_SEVERITY_HIGH|$TRIVY_SEVERITY_CRITICAL)\"" trivy-results.json || true)
       if [ $VULN_COUNT -gt 0 ]; then
-        echo "WARNING: Found $VULN_COUNT $TRIVY_SEVERITY vulnerabilities!"
+        echo "WARNING: Found $VULN_COUNT $TRIVY_SEVERITY_HIGH,$TRIVY_SEVERITY_CRITICAL vulnerabilities!"
         exit 1
       else
-        echo "No $TRIVY_SEVERITY vulnerabilities found."
+        echo "No $TRIVY_SEVERITY_HIGH,$TRIVY_SEVERITY_CRITICAL vulnerabilities found."
       fi
 
     - docker push $API_IMAGE_NAME:$API_VERSION
